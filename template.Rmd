@@ -3,19 +3,89 @@ title: "Simple document"
 output: github_document
 ---
 
-I'm an R Markdown document! 
 
-# Section 1
 
-Here's a **code chunk** that samples from 
-a _normal distribution_:
-
-```{r}
-samp = rnorm(100)
-length(samp)
+```{r, echo = FALSE, message=FALSE}
+library(tidyverse)
+library(readxl)
+library(haven)
 ```
 
-# Section 2
+## Import some data
 
-I can take the mean of the sample, too!
-The mean is `r mean(samp)`.
+I want to import `FAS_litters.csv`
+
+```{r}
+litters_df <- read_csv("data/FAS_litters.csv")
+```
+
+```{r}
+names(litters_df)
+
+litters_df <- janitor::clean_names(litters_df)
+```
+
+`::` only use one function from the library
+
+```{r}
+head(litters_df)
+tail(litters_df)
+```
+
+```{r, eval = FALSE}
+view(litters_df)
+```
+
+skimr
+
+```{r}
+skimr::skim(litters_df)
+```
+
+
+## Arguments in `read_csv`
+
+```{r, eval = FALSE}
+litters_df <- 
+  read_csv(
+    "data/FAS_litters.csv",
+    skip = 5,
+    col_names = FALSE,
+    na = "Low8"
+  )
+view(litters_df)
+```
+
+```{r}
+litters_data = read_csv(file = "./data/FAS_litters.csv",
+  col_types = cols(
+    Group = col_character(),
+    `Litter Number` = col_character(),
+    `GD0 weight` = col_double(),
+    `GD18 weight` = col_double(),
+    `GD of Birth` = col_integer(),
+    `Pups born alive` = col_integer(),
+    `Pups dead @ birth` = col_integer(),
+    `Pups survive` = col_integer()
+  )
+)
+```
+
+
+```{r}
+mlb11_df <-  read_excel("data/mlb11.xlsx")
+```
+
+LotR Words is next.
+
+```{r}
+fellow_df <- read_excel("data/LotR_Words.xlsx", range = "B3:D6")
+```
+
+## Read SAS file
+
+Try to read SAS file but didn't
+```{r, eval = FALSE}
+pulse_df <- read_sas("data/public_pulse_data.sas7bdat")
+```
+
