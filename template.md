@@ -151,3 +151,19 @@ Try to read SAS file but didn’t
 ``` r
 pulse_df <- read_sas("data/public_pulse_data.sas7bdat")
 ```
+
+## why to never use `read.csv`
+
+`read.csv` doesn’t give `tibble` and that’s really bad
+
+``` r
+litter_df_base <- read.csv("data/FAS_litters.csv")
+```
+
+## how do I export data
+
+that’s a good way!
+
+``` r
+write_csv(fellow_df, "data/fellowship_words.csv")
+```
