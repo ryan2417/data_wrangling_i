@@ -25,7 +25,7 @@ names(litters_df)
 litters_df <- janitor::clean_names(litters_df)
 ```
 
-`::` only use one function from the library
+`::` only use one function from the library, not loading whole package
 
 ```{r}
 head(litters_df)
