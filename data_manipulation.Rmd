@@ -13,96 +13,112 @@ library(haven)
 
 ## Import some data
 
-I want to import `FAS_litters.csv`
+I want to import `FAS_litters.csv` and `FAS_pups.csv`
 
 ```{r}
 litters_df <- read_csv("data/FAS_litters.csv")
-```
-
-```{r}
-names(litters_df)
-
 litters_df <- janitor::clean_names(litters_df)
+
+pups_df <- read.csv("data/FAS_pups.csv")
+pups_df <- janitor::clean_names(pups_df)
+
 ```
 
-`::` only use one function from the library, not loading whole package
+
+## `select`
 
 ```{r}
-head(litters_df)
-tail(litters_df)
-```
+select(litters_df, group, gd0_weight, pups_born_alive)
 
-```{r, eval = FALSE}
-view(litters_df)
-```
+select(litters_df, group:gd_of_birth)
 
-skimr
+select(litters_df, group, starts_with("pups"))
 
-```{r}
-skimr::skim(litters_df)
-```
+select(litters_df, -pups_survive)
 
+select(litters_df, litter_number)
 
-## Arguments in `read_csv`
+select(litters_df, GROUP = group, litter_number)
 
-```{r, eval = FALSE}
-litters_df <- 
-  read_csv(
-    "data/FAS_litters.csv",
-    skip = 5,
-    col_names = FALSE,
-    na = "Low8"
-  )
-view(litters_df)
+rename(litters_df, GROUP = group)
+
+select(litters_df, litter_number, everything())
+
+relocate(litters_df, litter_number)
 ```
 
 
 ```{r}
-litters_data = read_csv(file = "./data/FAS_litters.csv",
-  col_types = cols(
-    Group = col_character(),
-    `Litter Number` = col_character(),
-    `GD0 weight` = col_double(),
-    `GD18 weight` = col_double(),
-    `GD of Birth` = col_integer(),
-    `Pups born alive` = col_integer(),
-    `Pups dead @ birth` = col_integer(),
-    `Pups survive` = col_integer()
-  )
-)
+select(pups_df, litter_number, sex, pd_ears)
 ```
 
+
+## `filter`
+
+let's get rid of rows
+```{r}
+filter(litters_df, gd_of_birth == 20)
+
+filter(litters_df, group == "Con7")
+
+filter(litters_df, gd0_weight < 23)
+
+filter(litters_df, pups_survive != 4)
+
+filter(litters_df, !(group == "Con7"))
+
+filter(litters_df, group %in% c("Con7", "Con8"))
+
+filter(litters_df, group == "Con7", gd_of_birth == 20)
+
+drop_na(litters_df, gd0_weight)
+```
+
+## `mutate`
+
+Let's add or change columns
 
 ```{r}
-mlb11_df <-  read_excel("data/mlb11.xlsx")
+mutate(
+  litters_df, 
+  weight_change = gd18_weight - gd0_weight,
+  group = str_to_lower(group))
 ```
 
-LotR Words is next.
+## `arrange`
+
+Let's arrange the data
 
 ```{r}
-fellow_df <- read_excel("data/LotR_Words.xlsx", range = "B3:D6")
+arrange(litters_df, gd_of_birth, gd0_weight)
 ```
 
-## Read SAS file
-
-Try to read SAS file but didn't
-```{r, eval = FALSE}
-pulse_df <- read_sas("data/public_pulse_data.sas7bdat")
-```
-
-## why to never use `read.csv`
-
-`read.csv` doesn't give `tibble` and that's really bad
-
-```{r, eval = FALSE}
-litter_df_base <- read.csv("data/FAS_litters.csv")
-```
-
-## how do I export data
-
-that's a good way!
+## Pipes
 
 ```{r}
-write_csv(fellow_df, "data/fellowship_words.csv")
+litters_data_raw = read_csv("data/FAS_litters.csv")
+litter_clean_name <- janitor::clean_names(litters_data_raw)
+litter_select <- select(litter_clean_name, group, pups_survive)
+litter_filter <- filter(litter_select, group == "Con7")
+
+
+litters_df <-
+  read_csv("data/FAS_litters.csv") %>% 
+  janitor::clean_names() %>% 
+  select(group, pups_survive) %>% 
+  filter(group == "Con7")
+```
+
+```{r}
+litters_df <-
+  read_csv("data/FAS_litters.csv") %>% 
+  janitor::clean_names() %>% 
+  select(-pups_survive) %>% 
+  mutate(weight_change = gd18_weight - gd0_weight,
+         group = str_to_lower(group)
+         ) %>% 
+  drop_na(weight_change) %>% 
+  filter(group %in% c("con7", "con8")) %>% 
+  select(litter_number, group, weight_change, everything())
 ```
 
