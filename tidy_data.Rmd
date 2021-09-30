@@ -35,6 +35,7 @@ pulse_tidy <-
   mutate(visit = replace(visit, visit == "bl", "00m"),
          visit = factor(visit))
 ```
+(what about `gather()` ...? never use this one. always use `bind_rows()`)
 
 ## pivot_wider
 
@@ -53,7 +54,7 @@ analysis_df %>%
               values_from = "group_mean") %>% 
   knitr::kable()
 ```
-
+(what about `spread()` ...? never use this one. always use `bind_rows()`)
 
 ## bind_row
 
@@ -82,3 +83,31 @@ ltr_df <-
 ```
 
 (what about `rbind()` ...? never use this one. always use `bind_rows()`)
+
+## joins
+
+
+Look at FAS data
+
+```{r}
+litters_df <- 
+  read_csv("data/FAS_litters.csv") %>% 
+  janitor::clean_names() %>% 
+  separate(group, into = c("dose", "day_of_tx"), 3) %>% 
+  relocate(litter_number) %>% 
+  mutate(dose = str_to_lower(dose))
+
+pups_df <-
+  read_csv("data/FAS_pups.csv") %>% 
+  janitor::clean_names() %>% 
+  mutate(sex = recode(sex, `1` = "male", `2` = "female"))
+```
+
+Let's join these up!
+
+```{r}
+fas_df <- 
+  left_join(pups_df, litters_df, by = "litter_number") %>% 
+  relocate(litter_number, dose, day_of_tx)
+```
+
